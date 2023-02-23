@@ -233,3 +233,31 @@ for (obj in objetos) {
                                   "horas_trab_usual", "Pobre", "numero_personas"))
   
   data$num_menores <- as.numeric(data$edad < 18)
+  
+  # Pasar la base únicamente a hogares
+  
+  data <- data %>% group_by(id) %>%
+    summarize(edad = mean(edad),
+              edad_2 = mean(edad_2),
+              mujer = mean(mujer),
+              estudiante = mean(estudiante),
+              busca_trabajo = mean(busca_trabajo),
+              amo_casa =mean(amo_casa),
+              hijos_hogar = mean(amo_casa),
+              primaria = mean(primaria),
+              secundaria = mean(secundaria),
+              media = mean(media),
+              superior = mean(superior),
+              Ingtot = sum(Ingtot),
+              Ingtotug = mean(Ingtotug),
+              exp_trab_actual = mean(exp_trab_actual),
+              horas_trab_usual = mean(horas_trab_usual),
+              Pobre = mean(Pobre),
+              numero_personas = sum(numero_personas),
+              num_menores = sum(num_menores),
+              ciudad = first(ciudad))
+  
+  assign(obj, data)
+  rm(data)
+  
+}
