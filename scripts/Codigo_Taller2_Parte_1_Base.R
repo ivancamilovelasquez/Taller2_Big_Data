@@ -85,3 +85,84 @@ test <- left_join(test_personas,test_hogares)
 test$Pobre <- NA
 test$Ingtot <- NA
 test$Ingtotug <- NA
+
+# 3. Limpieza de la base 
+
+objetos <- c("train", "test")
+
+for (obj in objetos) {
+  
+  data <- get(obj)
+  
+  # - 3.1 Train
+  
+  # - Edad (Sólo mayores de 18 años)
+  
+  data <- rename(data, c("edad" = "P6040"))
+  data$edad_2 <- data$edad^2
+  
+  # - Género
+  
+  data$mujer <- ifelse(data$P6020 == 2, 1, 0)
+  data$mujer[data$P6020 == 1] <- 0
+  
+  # - Estudiante
+  
+  data$estudiante <- ifelse(data$P6240 == 3, 1, 0)
+  data$estudiante[data$P6240 != 3] <- 0
+  data$estudiante[data$P6240 == "."] <- 0
+  data$estudiante[is.na(data$estudiante)] <- 0
+  
+  # - Busca trabajo
+  
+  data$busca_trabajo <- ifelse(data$P6240 == 2, 1, 0)
+  data$busca_trabajo[data$P6240 != 2] <- 0
+  data$busca_trabajo[data$P6240 == "."] <- 0
+  data$busca_trabajo[is.na(data$busca_trabajo)] <- 0
+  
+  # - Amo(a) de casa
+  
+  data$amo_casa <- ifelse(data$P6240 == 4, 1, 0)
+  data$amo_casa[data$P6240 != 4] <- 0
+  data$amo_casa[data$P6240 == "."] <- 0
+  data$amo_casa[is.na(data$amo_casa)] <- 0
+  
+  # - Hijos en el hogar
+  
+  data$hijos_hogar <- ifelse(data$P6050 == 3, 1, 0)
+  data$hijos_hogar[data$P6050 != 3] <- 0
+  data$hijos_hogar[data$P6050 == "."] <- 0
+  data$hijos_hogar[is.na(data$hijos_hogar)] <- 0
+  
+  # - Primaria
+  
+  data$primaria <- ifelse(data$P6210 == 1, 1, 0)
+  data$primaria[data$P6210 == "."] <- 0
+  data$primaria[is.na(data$primaria)] <- 0
+  
+  # - Secundaria
+  
+  data$secundaria <- ifelse(data$P6210 == 4, 1, 0)
+  data$secundaria[data$P6210 == "."] <- 0
+  data$secundaria[is.na(data$secundaria)] <- 0
+  
+  # - Media
+  
+  data$media <- ifelse(data$P6210 == 5, 1, 0)
+  data$media[data$P6210 == "."] <- 0
+  data$media[is.na(data$media)] <- 0
+  
+  # - Superior
+  
+  data$superior <- ifelse(data$P6210 == 6, 1, 0)
+  data$superior[data$P6210 == "."] <- 0
+  data$superior[is.na(data$superior)] <- 0
+  
+  
+  # - Experiencia trabajo actual
+  
+  data <- rename(data, c("exp_trab_actual" = "P6426"))
+  
+  # - Horas de trabajo a la semana
+  
+  data <- rename(data, c("horas_trab_usual" = "P6800"))
