@@ -166,3 +166,70 @@ for (obj in objetos) {
   # - Horas de trabajo a la semana
   
   data <- rename(data, c("horas_trab_usual" = "P6800"))
+  
+  
+  # - Ciudad
+  
+  data <- rename(data, c("ciudad" = "Dominio"))
+  
+  # - Número de Cuartos
+  
+  data <- rename(data, c("numero_cuartos" = "P5010"))
+  
+  # - Número de personas
+  
+  data <- rename(data, c("numero_personas" = "Nper"))
+  
+  # - Imputación de experiencia
+  
+  data$exp_trab_actual <- ifelse(data$edad < 18 & 
+                                   is.na(data$exp_trab_actual), 0, 
+                                 data$exp_trab_actual)
+  
+  data <- data %>% 
+    group_by(id) %>% 
+    mutate(mean_exp = mean(exp_trab_actual, na.rm = TRUE)) %>% 
+    ungroup() %>% 
+    mutate(exp_trab_actual = if_else(is.na(exp_trab_actual) & data$edad >= 18, 
+                                     mean_exp, data$exp_trab_actual))
+  
+  data <- data %>% 
+    group_by(id) %>% 
+    mutate(variable = ifelse(all(is.na(exp_trab_actual)), 0, 
+                             exp_trab_actual)) %>% 
+    ungroup() %>% 
+    mutate(exp_trab_actual = if_else(is.na(exp_trab_actual), 
+                                     variable, data$exp_trab_actual))
+  
+  # Imputación Horas 
+  
+  data$horas_trab_usual <- ifelse(data$edad < 18 & 
+                                    is.na(data$horas_trab_usual), 0, 
+                                  data$horas_trab_usual)
+  
+  data <- data %>% 
+    group_by(id) %>% 
+    mutate(mean_h = mean(horas_trab_usual, na.rm = TRUE)) %>% 
+    ungroup() %>% 
+    mutate(horas_trab_usual = if_else(is.na(horas_trab_usual) & data$edad >= 18, 
+                                      mean_h, data$horas_trab_usual))
+  
+  data <- data %>% 
+    group_by(id) %>% 
+    mutate(variable = ifelse(all(is.na(horas_trab_usual)), 0, 
+                             horas_trab_usual)) %>% 
+    ungroup() %>% 
+    mutate(horas_trab_usual = if_else(is.na(horas_trab_usual), 
+                                      variable, data$horas_trab_usual))
+  
+  
+  
+  data <- subset(data, select = c("id", "Orden", "Clase",
+                                  "ciudad", "edad", "edad_2", "mujer", 
+                                  "estudiante", "busca_trabajo", "amo_casa",
+                                  "hijos_hogar", "primaria", "secundaria",
+                                  "media", "superior", "Ingtot",
+                                  "Ingtotug", "exp_trab_actual",
+                                  "horas_trab_usual", "Pobre", "numero_personas"))
+  
+  data$num_menores <- as.numeric(data$edad < 18)
