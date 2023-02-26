@@ -27,7 +27,7 @@ test2 <- test
 
 # Modelo 1: Regresión Linear
 
-cv1 <- trainControl(number = 5, method = "cv")
+cv5 <- trainControl(number = 5, method = "cv")
 mod1 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundaria + media + superior + exp_trab_actual, 
               data = train2, 
               method = "lm",
@@ -40,7 +40,7 @@ grid_gbm<-expand.grid(n.trees=c(1000),interaction.depth=c(3),shrinkage=c(0.01),n
 mod2 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundaria + media + superior + exp_trab_actual,
                       data = train2, 
                       method = "gbm", 
-                      trControl = cv1,
+                      trControl = cv5,
                       metric = "RSME",
                       tuneGrid = grid_gbm
 )
@@ -62,3 +62,5 @@ mod3 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                  tuneGrid = tunegrid_rf)
 mod3
 plot(mod3)
+
+
