@@ -36,7 +36,7 @@ mod1 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundari
 mod1
 
 
-# Modelo 2: Regresion lineal (diferentes conroles)
+# Modelo 2: Regresion lineal (diferentes controles)
 mod2 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                  media+superior+exp_trab_actual+horas_trab_usual+busca_trabajo, 
                preProcess=NULL,
