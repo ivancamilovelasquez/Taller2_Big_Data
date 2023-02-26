@@ -18,7 +18,7 @@ rm(list = ls())
 
 # - Librerias y paquetes 
 
-p_load(caret, h2o)
+p_load(caret, h2o, tidyverse)
 
 train2 <- train 
 test2 <- test 
@@ -46,3 +46,19 @@ mod2 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundari
 )
 
 mod2
+
+
+# Modelo 3: Random forest y una grilla para tunear 
+tunegrid_rf <- expand.grid(mtry = c(3, 5), 
+                           min.node.size = c(10,50,100,150,300),
+                           splitrule = "variance")
+
+mod3 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+                   media+superior+exp_trab_actual,
+                 data = train2, 
+                 method = "ranger", 
+                 trControl = cv5,
+                 metric = 'RMSE', 
+                 tuneGrid = tunegrid_rf)
+mod3
+plot(mod3)
