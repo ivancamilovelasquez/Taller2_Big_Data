@@ -58,6 +58,16 @@ mod3 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundari
 
 mod3
 
+# Modelo 3: Arbol de decision 
+cv5 <- trainControl(number = 5, method = "cv")
+mod3 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+                   media+superior+exp_trab_actual,
+                 data = train2, 
+                 method = "rpart", 
+                 trControl = cv5)
+mod3
+library(rattle)
+fancyRpartPlot(mod3$finalModel)
 
 # Modelo 4: Random forest y una grilla para tunear 
 tunegrid_rf <- expand.grid(mtry = c(3, 5), 
@@ -73,6 +83,7 @@ mod4 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                  tuneGrid = tunegrid_rf)
 mod4
 plot(mod4)
+<<<<<<< HEAD
 
 # Modelo 5: Arbol de decision 
 cv5 <- trainControl(number = 5, method = "cv")
@@ -84,5 +95,17 @@ mod5 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
 mod5
 library(rattle)
 fancyRpartPlot(modelo1$finalModel)
+=======
+>>>>>>> 2fa85b49035eadc0128791c3bd080e920eaf09f8
 
+#Tabla comparativa de los resultados
+Resultados <- matrix(c(mean(mod1$resample$RMSE),mean(mod2$resample$RMSE),mean(mod3$resample$RMSE),mean(mod4$resample$RMSE),
+                  mean(mod1$resample$Rsquared),mean(mod2$resample$Rsquared),mean(mod3$resample$Rsquared),mean(mod4$resample$Rsquared))
+                ,ncol=4 
+                ,byrow=TRUE) 
+colnames(Resultados) <- c("Regresión Linear","Random Forest GBM","Arbol de Decisión","Random Forest")
+rownames(Resultados) <- c("RMSE","R Squared")
 
+Resultados
+
+##Basado en esto, escogeremos el modelo de Random Forest para predecir la pobreza
