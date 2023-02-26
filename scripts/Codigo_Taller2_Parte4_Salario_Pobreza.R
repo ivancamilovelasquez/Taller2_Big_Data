@@ -58,45 +58,34 @@ mod3 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundari
 
 mod3
 
-# Modelo 3: Arbol de decision 
+# Modelo 4: Arbol de decision 
 cv5 <- trainControl(number = 5, method = "cv")
-mod3 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+mod4 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                    media+superior+exp_trab_actual,
                  data = train2, 
                  method = "rpart", 
                  trControl = cv5)
-mod3
+mod4
 library(rattle)
 fancyRpartPlot(mod3$finalModel)
 
-# Modelo 4: Random forest y una grilla para tunear 
+# Modelo 5: Random forest y una grilla para tunear 
 tunegrid_rf <- expand.grid(mtry = c(3, 5), 
                            min.node.size = c(10,50,100,150,300),
                            splitrule = "variance")
 
-mod4 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+mod5 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                    media+superior+exp_trab_actual,
                  data = train2, 
                  method = "ranger", 
                  trControl = cv5,
                  metric = 'RMSE', 
                  tuneGrid = tunegrid_rf)
-mod4
-plot(mod4)
-<<<<<<< HEAD
-
-# Modelo 5: Arbol de decision 
-cv5 <- trainControl(number = 5, method = "cv")
-mod5 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
-                   media+superior+exp_trab_actual,
-                 data = train2, 
-                 method = "rpart", 
-                 trControl = cv5)
 mod5
-library(rattle)
-fancyRpartPlot(modelo1$finalModel)
-=======
->>>>>>> 2fa85b49035eadc0128791c3bd080e920eaf09f8
+plot(mod5)
+
+
+
 
 #Tabla comparativa de los resultados
 Resultados <- matrix(c(mean(mod1$resample$RMSE),mean(mod2$resample$RMSE),mean(mod3$resample$RMSE),mean(mod4$resample$RMSE),
