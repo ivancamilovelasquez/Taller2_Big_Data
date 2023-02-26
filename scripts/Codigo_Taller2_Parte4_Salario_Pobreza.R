@@ -63,4 +63,15 @@ mod3 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
 mod3
 plot(mod3)
 
+# Modelo 4: Arbol de decision 
+cv5 <- trainControl(number = 5, method = "cv")
+mod4 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+                   media+superior+exp_trab_actual,
+                 data = train2, 
+                 method = "rpart", 
+                 trControl = cv5)
+mod4
+library(rattle)
+fancyRpartPlot(modelo1$finalModel)
+
 
