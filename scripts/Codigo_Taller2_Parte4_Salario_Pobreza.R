@@ -37,7 +37,7 @@ mod1
 
 #Modelo 2: GBM 
 grid_gbm<-expand.grid(n.trees=c(1000),interaction.depth=c(3),shrinkage=c(0.01),n.minobsinnode = c(30))
-gbm_res <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundaria + media + superior + exp_trab_actual,
+mod2 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundaria + media + superior + exp_trab_actual,
                       data = train2, 
                       method = "gbm", 
                       trControl = cv1,
@@ -45,4 +45,4 @@ gbm_res <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secund
                       tuneGrid = grid_gbm
 )
 
-gbm_res$resample$RMSE
+mod2
