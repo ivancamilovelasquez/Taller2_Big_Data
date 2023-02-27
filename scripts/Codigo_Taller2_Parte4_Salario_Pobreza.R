@@ -42,6 +42,8 @@ mod1 <- train(Ingtotug~edad + edad_2 + mujer + estudiante + primaria + secundari
 mod1
 
 # Metricas modelo 1
+p_load(MLmetrics)
+
 y_hat_outsample1 = predict(mod1, newdata = ttest)
 
 MAE(y_pred = y_hat_outsample1, y_true = ttest$Ingtotug)
@@ -175,9 +177,13 @@ ResultadosOutsample <- data.frame(Modelo=c("Regresión Linear 1","Regresión Lin
 ResultadosOutsample
 ##Basado en esto, escogeremos el modelo de Random Forest para predecir la pobreza
 
-
+test2$Ingtotug_pred <- predict(mod4, newdata = test2)
+ttrain$Ingtotug_pred <- predict(mod4, newdata = ttrain)
+ttest$Ingtotug_pred <- predict(mod4, newdata = ttest)
 
 #Modelo 1: Logit 
+p_load(MLmetrics)
+
 pob1 <- train(Pobre~Ingtotug_pred+edad+edad_2+mujer+estudiante+
                  primaria+secundaria+media+superior+exp_trab_actual,
                data = ttrain,
