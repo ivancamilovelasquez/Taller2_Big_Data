@@ -175,7 +175,7 @@ pob2 <- train(Pobre~Ingtotug_pred+edad+edad_2+mujer+estudiante+
 )
 pob2
 
-y_hat_outsample_p2 = predict(mylogit_lasso_upsample, newdata = ttest)
+y_hat_outsample_p2 = predict(pob2, newdata = ttest)
 
 Recall(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
 Accuracy(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
@@ -183,6 +183,32 @@ F1_Score(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
 Precision(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
 
 #Modelo 3: Logit Caret
+
+fiveStats <- function(...) c(twoClassSummary(...), defaultSummary(...))
+ctrl<- trainControl(method = "cv",
+                    number = 5,
+                    summaryFunction = fiveStats,
+                    classProbs = F,
+                    verbose=FALSE,
+                    savePredictions = T)
+
+set.seed(2905)
+pob3 <- train(as.factor(Pobre)~Ingtotug_pred+edad+edad_2+mujer+estudiante+
+                primaria+secundaria+media+superior+exp_trab_actual, 
+              data = ttrain, 
+              method = "glm",
+              trControl = ctrl_def,
+              family = "binomial", 
+              preProcess =  c("center", "scale"))
+
+pob3
+
+y_hat_outsample_p3 = predict(pob3, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre)
+F1_Score(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre)
+Precision(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre)
 
 
 #Modelo 4: Logit Ridge
@@ -209,7 +235,42 @@ F1_Score(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
 Precision(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
 
 #Modelo 5: Logit Lasso Smote
+p_load("smotefamily")
+glimpse(train2)
 
+predictors<-c("edad","edad_2","mujer","estudiante","busca_trabajo",
+              "amo_casa","hijos_hogar","primaria","secundaria","media",
+              "superior", "exp_trab_actual","horas_trab_usual",
+              "Ingtotug_pred")
+head(ttrain[predictors])
+
+smote_output = SMOTE(X = ttrain[predictors],
+                     target = ttrain$Pobre)
+smote_data = smote_output$data
+table(ttrain$Pobre)
+table(smote_data$class)
+
+set.seed(2905)
+pob5<- train(class~edad+edad_2+mujer+estudiante+busca_trabajo+
+               amo_casa+hijos_hogar+primaria+secundaria+media+
+               superior+exp_trab_actual+horas_trab_usual
+             +Ingtotug_pred,
+             data = smote_data, 
+             method = "glmnet",
+             trControl = ctrl,
+             family = "binomial", 
+             metric = "Accuracy",
+             tuneGrid = expand.grid(alpha = 1,lambda=lambda_grid), 
+             preProcess = c("center", "scale")
+)
+pob5
+
+y_hat_outsample_p5 = predict(pob5, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre)
+F1_Score(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre)
+Precision(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre)
 
 
 #Modelo 6: LDA
