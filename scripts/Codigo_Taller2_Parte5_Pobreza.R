@@ -325,4 +325,10 @@ ResultadosOutsampleP <- data.frame(Modelo=c("Logit","Logit Lasso Upsampling","Lo
 
 ResultadosOutsampleP
 
-#Basados en esto, el mejor modelo será el de Logit
+#Basados en esto, el mejor modelo será el de Logit Caret
+
+test2$Pobre_pred <- predict(pob3, newdata = test2)
+predictTest_mod3 <- data.frame(
+  id = test2$id,
+  pobre = test2$Pobre_pred    
+)
