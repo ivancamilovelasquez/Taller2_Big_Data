@@ -292,7 +292,7 @@ RMSE(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
 
 
 #Tablas para comparar modelos outsample
-ResultadosOutsampleP <- data.frame(Modelo=c("Logit","Logit Lasso","Logit Caret","Logit Ridge","SMOTE","LDA"), 
+ResultadosOutsampleP <- data.frame(Modelo=c("Logit","Logit Lasso Upsampling","Logit Caret","Logit Ridge","SMOTE","LDA"), 
                                   Recall = c(Recall(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre),
                                              Recall(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre),
                                              Recall(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre),
