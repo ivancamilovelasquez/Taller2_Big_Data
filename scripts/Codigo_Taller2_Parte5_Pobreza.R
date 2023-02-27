@@ -121,3 +121,147 @@ train_test$pobre_prob1 = ifelse(train_test$y_hat_1>rule,1,0)
 accuracy_logit1 <- mean(train_test$pobre_prob1 == train_test$Pobre)
 accuracy_logit1
 
+#Predicciones de la Pobreza desde el Random Forest
+
+test2$Ingtotug_pred <- predict(mod4, newdata = test2)
+ttrain$Ingtotug_pred <- predict(mod4, newdata = ttrain)
+ttest$Ingtotug_pred <- predict(mod4, newdata = ttest)
+
+#Modelo 1: Logit 
+p_load(MLmetrics)
+
+pob1 <- train(Pobre~Ingtotug_pred+edad+edad_2+mujer+estudiante+
+                 primaria+secundaria+media+superior+exp_trab_actual,
+               data = ttrain,
+               method = "glmnet",
+               family = "binomial")
+pob1
+
+y_hat_outsample_p1 = predict(pob1, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre)
+F1_Score(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre)
+Precision(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre)
+
+
+#Modelo 2: Upsample Lasso
+# UP-Sampling
+glimpse(ttrain)
+ttrain$Ingtotug_pred <- predict(mod4, newdata = ttrain)
+set.seed(2905)
+ttrain$Pobre <- as.factor(ttrain$Pobre)
+class(ttrain$Pobre)
+upSampledTrain <- upSample(x = ttrain,
+                           y = ttrain$Pobre,
+                           yname = "Pobre")
+dim(ttrain)
+
+dim(upSampledTrain)
+
+table(upSampledTrain$Pobre) 
+
+lambda_grid <- 10^seq(-4, 0.01, length = 10)
+
+pob2 <- train(Pobre~Ingtotug_pred+edad+edad_2+mujer+estudiante+
+                                  primaria+secundaria+media+superior+exp_trab_actual, 
+                                data = upSampledTrain, 
+                                method = "glmnet",
+                                trControl = cv,
+                                family = "binomial", 
+                                metric = "Accuracy",
+                                tuneGrid = expand.grid(alpha = 0,lambda=lambda_grid), 
+                                preProcess = c("center", "scale")
+)
+pob2
+
+y_hat_outsample_p2 = predict(mylogit_lasso_upsample, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
+F1_Score(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
+Precision(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre)
+
+#Modelo 3: Logit Caret
+
+
+#Modelo 4: Logit Ridge
+lambda_grid <- 10^seq(-4, 0.01, length = 10) #en la practica se suele usar una grilla de 200 o 300
+
+set.seed(2905)
+pob4 <- train(as.factor(Pobre)~Ingtotug_pred+edad+edad_2+mujer+estudiante+
+                             primaria+secundaria+media+superior+exp_trab_actual, 
+                           data = ttrain, 
+                           method = "glmnet",
+                           trControl = ctrl,
+                           family = "binomial", 
+                           metric = "Accuracy",
+                           tuneGrid = expand.grid(alpha = 0,lambda=lambda_grid), 
+                           preProcess = c("center", "scale")
+)
+pob4
+
+y_hat_outsample_p4 = predict(pob4, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
+F1_Score(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
+Precision(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre)
+
+#Modelo 5: Logit Lasso Smote
+
+
+
+#Modelo 6: LDA
+pob6 = train(Pobre~Ingtotug_pred+edad+edad_2+mujer+estudiante+
+                  primaria+secundaria+media+superior+exp_trab_actual, 
+                data=ttrain, 
+                method="lda",
+                trControl = ctrl,
+                metric = 'Accuracy')
+
+pob6
+
+y_hat_outsample_p6 = predict(pob6, newdata = ttest)
+
+Recall(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+Accuracy(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+R2_Score(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+RMSE(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+
+
+#Tablas para comparar modelos outsample
+ResultadosOutsampleP <- data.frame(Modelo=c("Logit","Logit Lasso","Logit Caret","Logit Ridge","SMOTE","LDA"), 
+                                  Recall = c(Recall(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre),
+                                             Recall(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre),
+                                             Recall(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre),
+                                             Recall(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre),
+                                             Recall(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre),
+                                             Recall(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+                                  ),
+                                  Accuracy = c(Accuracy(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre),
+                                               Accuracy(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre),
+                                               Accuracy(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre),
+                                               Accuracy(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre),
+                                               Accuracy(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre),
+                                               Accuracy(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+                                  ),
+                                  F1_Score = c( F1_Score(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre),
+                                                F1_Score(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre),
+                                                F1_Score(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre),
+                                                F1_Score(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre),
+                                                F1_Score(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre),
+                                                F1_Score(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+                                  ),
+                                  Precision = c(Precision(y_pred = y_hat_outsample_p1, y_true = ttest$Pobre),
+                                                Precision(y_pred = y_hat_outsample_p2, y_true = ttest$Pobre),
+                                                Precision(y_pred = y_hat_outsample_p3, y_true = ttest$Pobre),
+                                                Precision(y_pred = y_hat_outsample_p4, y_true = ttest$Pobre),
+                                                Precision(y_pred = y_hat_outsample_p5, y_true = ttest$Pobre),
+                                                Precision(y_pred = y_hat_outsample_p6, y_true = ttest$Pobre)
+                                  )
+)
+
+ResultadosOutsampleP
+
+#Basados en esto, el mejor modelo será el de Logit
