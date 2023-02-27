@@ -16,8 +16,7 @@
 
 library(pacman)
 p_load(rvest, tidyverse, ggplot2, robotstxt, psych, caret, boot, openxlsx, rio, rpart)
-p_load(rpart.plot, Metrics, AER, rattle, ipred, randomForest, ipred)
-set.seed(1011)
+p_load(rpart.plot, Metrics, AER, rattle, ipred, randomForest, ipred, glmnet)
 
 
 # Fijar una semilla 
@@ -29,7 +28,6 @@ set.seed(10119)
 index <- createDataPartition(train$Pobre, p = 0.7, list = FALSE)
 train_train <- train[index, ]
 train_test <- train[-index, ]
-
 
 
 
@@ -63,7 +61,7 @@ predictions_2 <- predict(m1p1, newdata = train_test, type = "class")
 correct_predictions <- sum(predictions_2 == train_test$Pobre)
 accuracy_2 <- correct_predictions / nrow(train_test)
 print(accuracy_2)
-# Acurracy de 0.82
+# Acurracy de 0.831
 
 
 
@@ -85,22 +83,41 @@ print(accuracy_3)
 
 
 
-# Modelo 4 : Random Forest
+# Modelo 4:  Random Forest con  expand.grid
 
+train_train <- train_train %>% 
+  mutate_all(funs(factor))
+train_train <- train_train %>%
+  mutate_all(funs(make.names(as.character(.))))
 
-# Creamos una grilla para tunear el random forest
-tunegrid_rf <- expand.grid(mtry = c(3, 8, 12), 
-                           min.node.size = c(500, 1000, 10000,
-                                             20000, 30000),
+tunegrid_rf <- expand.grid(mtry = c(3, 5, 8), 
+                           min.node.size = c(500, 1000,20000, 30000),
                            splitrule = "gini")
 
-m4p4 <- train(Pobre~ edad + edad_2 + mujer + estudiante + busca_trabajo +
-                 amo_casa + hijos_hogar + primaria + secundaria + media +
-                 superior + exp_trab_actual + horas_trab_usual,
-                 method = "ranger", 
-                 trControl = cv5,
-                 metric = 'RMSE', 
-                 tuneGrid = tunegrid_rf)
+m4p4 <- train(Pobre ~ edad + edad_2 + mujer + estudiante + busca_trabajo +
+                amo_casa + hijos_hogar + primaria + secundaria + media +
+                superior + exp_trab_actual + horas_trab_usual,
+              data = train_train,
+              method = "rf", 
+              trControl = trainControl(method = "cv", number = 10, classProbs = TRUE),
+              tuneGrid = tunegrid_rf,
+              metric = 'Accuracy')
 
 
-plot(m4p4)
+## Modelos lineales 
+
+# Logit
+
+m1_log1 <- glm(Pobre ~ edad + edad_2 + mujer + estudiante + busca_trabajo +
+               amo_casa + hijos_hogar + primaria + secundaria + media +
+               superior + exp_trab_actual + horas_trab_usual,
+               data= train_train,
+               family=binomial(link="logit"))
+
+train_train$y_hat_1 <- predict(m1_log1, newdata=train_train , type="response")
+rule=0.5
+train_test$y_hat_1 <- predict(m1_log1, newdata=train_test , type="response")
+train_test$pobre_prob1 = ifelse(train_test$y_hat_1>rule,1,0)
+accuracy_logit1 <- mean(train_test$pobre_prob1 == train_test$Pobre)
+accuracy_logit1
+
