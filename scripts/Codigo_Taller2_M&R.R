@@ -27,17 +27,40 @@ train2 <- train
 test2 <- test
 glimpse(train2)
 
+trainIndex <- createDataPartition(train2$Pobre, p = 0.7)
+trainIndex <- trainIndex$Resample1
+
+ttrain <- train2[trainIndex, ]
+ttest <- train2[-trainIndex, ]
+dim(ttrain)
+dim(ttest)
+
 # Predecir Ingresos - Regresion lineal
 
 cv5 <- trainControl(number = 5, method = "cv")
-mod1 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
-                         media+superior+exp_trab_actual+horas_trab_usual, 
+mode1 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
+                         media+superior+exp_trab_actual+horas_trab_usual+busca_trabajo, 
                        preProcess=NULL,
-                       data = train2, 
+                       data = ttrain, 
                        method = "lm",
                        trControl = cv5,
                        metric = 'RMSE')
-mod1
+mode1
+
+ttest$ing_pred <- predict(mode1,newdata = ttest)
+summary(ttest$ing_pred)
+
+y_hat_insample = predict(mode1, newdata = ttrain)
+y_hat_outsample = predict(mode1, newdata = ttest)
+
+MAE(y_pred = y_hat_insample, y_true = ttest$Ingtotug)
+
+
+
+
+
+
+
 
 # Arbol de decision 
 cv5 <- trainControl(number = 5, method = "cv")
@@ -46,9 +69,10 @@ modelo1 <- train(Ingtotug~edad+edad_2+mujer+estudiante+primaria+secundaria+
                  data = train2, 
                  method = "rpart", 
                  trControl = cv5)
-
+modelo1
 library(rattle)
 fancyRpartPlot(modelo1$finalModel)
+
 
 
 y_hat_insample1 = predict(modelo1, newdata = train2)
