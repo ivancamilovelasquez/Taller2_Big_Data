@@ -84,7 +84,7 @@ df <- train[c("mujer","edad",
                 "num_menores", "Pobre")]
 df$Pobre <- factor(df$Pobre, labels = c("No pobre", "Pobre"))
 
-ggpairs(df, columns = 2:6, ggplot2::aes(colour = Pobre)) +
+g <- ggpairs(df, columns = 2:6, ggplot2::aes(colour = Pobre)) +
   theme_minimal() + 
   labs(title = "Gráfico de matriz de dispersión") + 
   scale_y_continuous(labels = scales::number_format()) + 
@@ -92,7 +92,10 @@ ggpairs(df, columns = 2:6, ggplot2::aes(colour = Pobre)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text = element_text(size = 8))
 
+# Limpiar el dispositivo gráfico
+graphics.off()
 
-
+# Imprimir el gráfico de nuevo
+print(g)
 
 
